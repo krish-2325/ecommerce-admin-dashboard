@@ -1,8 +1,11 @@
 export default function HomePage() {
   return (
-    <main style={{ padding: "40px" }}>
-      <h1>Admin Dashboard</h1>
-      <p>Welcome to the e-commerce product management dashboard.</p>
-    </main>
+    <div>
+      <h1 className="text-2xl font-bold">Dashboard</h1>
+      <p className="mt-2 text-gray-600">
+        Welcome to the admin dashboard.
+      </p>
+    </div>
   );
 }
+

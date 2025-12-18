@@ -1,8 +1,10 @@
 export default function ProductsPage() {
   return (
-    <main style={{ padding: "40px" }}>
-      <h1>Products</h1>
-      <p>All products will be managed here.</p>
-    </main>
+    <div>
+      <h1 className="text-2xl font-bold">Products</h1>
+      <p className="mt-2 text-gray-600">
+        Manage your products here.
+      </p>
+    </div>
   );
 }
