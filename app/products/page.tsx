@@ -13,7 +13,7 @@ export default async function ProductsPage() {
   stock: number;
   category: string;
   image: string;
-}>();
+}[]>();
   const products = productsFromDB.map((p) => ({
     _id: p._id.toString(),
     name: p.name,
