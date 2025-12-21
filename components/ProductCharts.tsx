@@ -10,6 +10,7 @@ import {
   PieChart,
   Pie,
   Cell,
+  CartesianGrid,
 } from "recharts";
 
 type Product = {
@@ -31,10 +32,24 @@ export default function ProductCharts({ products }: { products: Product[] }) {
       return acc;
     }, {})
   );
-  const priceData = products.map((p) => ({
-    name: p.category,
-    value: p.price,
-  }));
+  const priceData = Object.values(
+    products.reduce((acc: Record<string, { name: string; value: number }>, p) => {
+        acc[p.category] = acc[p.category] || {
+        name: p.category,
+        value: 0,
+        };
+        acc[p.category].value += p.price;
+        return acc;
+    }, {})
+    );
+
+    if (products.length === 0) {
+    return (
+        <div className="bg-white p-4 rounded shadow mb-6">
+        <p className="text-gray-500">No data available for charts</p>
+        </div>
+    );
+    }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -47,6 +62,7 @@ export default function ProductCharts({ products }: { products: Product[] }) {
             <YAxis />
             <Tooltip />
             <Bar dataKey="stock" fill="#2563eb" />
+            <CartesianGrid strokeDasharray="3 3" />
           </BarChart>
         </ResponsiveContainer>
       </div>
