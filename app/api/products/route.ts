@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Product from "@/models/product";
 import { productSchema } from "@/lib/validators/product";
+import cloudinary from "@/lib/cloudinary";
 export async function GET() {
     try {
         console.log("=== GET Products API Called ===");
@@ -40,8 +41,18 @@ export async function GET() {
 export async function POST(req: Request)
 {
     try{
-        const body=await req.json();
-        const parsed =productSchema.safeParse(body);
+        const formData=await req.formData();
+        const name =formData.get("name");
+        const price =Number(formData.get("price"));
+        const stock =Number(formData.get("stock"));
+        const category =formData.get("category");
+        const image=formData.get("image") as File|null;
+        const parsed =productSchema.safeParse({
+            name,
+            price,
+            stock,
+            category,
+        });
         if(!parsed.success)
         {
             return NextResponse.json(
@@ -49,8 +60,30 @@ export async function POST(req: Request)
                 { status: 400 }
             );
         }
+        if(!image)
+        {
+            return NextResponse.json(
+                {errors:{image:["Image is required"]}},
+                {status:400}
+            );
+        }
+        const bytes=await image.arrayBuffer();
+        const buffer=Buffer.from(bytes);
+        const uploadResult:any = await new Promise((resolve,reject)=>
+        {
+            cloudinary.uploader.upload_stream(
+                {folder :"products",},
+                    (error,result)=>{
+                        if(error) reject (error);
+                        resolve(result);
+                    }
+            ).end(buffer);
+        })
         await connectDB();
-        const product = await Product.create(parsed.data);
+        const product = await Product.create({
+            ...parsed.data,
+            image: uploadResult.secure_url
+        });
         return NextResponse.json(product,{status:201});
     }
     catch(error)

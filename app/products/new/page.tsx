@@ -9,27 +9,61 @@ const [form, setform] = useState({
   stock: "",
   category: "",
 });
+const [step, setStep] = useState<1 | 2>(1);
 const [errors, setErrors] = useState<Record<string, string[]>>({});
 const [loading, setLoading] = useState(false);
+const [image,setImage]=useState<File | null>(null);
+function nextStep() {
+  const newErrors: Record<string, string[]> = {};
+
+  if (!form.name) {
+    newErrors.name = ["Name is required"];
+  }
+  if (!form.category) {
+    newErrors.category = ["Category is required"];
+  }
+
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors);
+    return;
+  }
+  setErrors({});
+  setStep(2);
+}
+
+function prevStep() {
+  setStep(1);
+}
 function handleChange(e:React.ChangeEvent<HTMLInputElement>)
 {
-    setErrors({});
-    setform({...form,[e.target.name]:e.target.value});
+    const { name, value } = e.target;
+
+  setErrors((prev) => {
+    const copy = { ...prev };
+    delete copy[name];
+    return copy;
+  });
+
+  setform({ ...form, [name]: value });
 }
 async function handleSubmit(e: React.FormEvent) {
   e.preventDefault();
   setErrors({});
   setLoading(true);
 
+  const formData = new FormData();
+  formData.append("name", form.name);
+  formData.append("price", form.price);
+  formData.append("stock", form.stock);
+  formData.append("category", form.category);
+
+  if (image) {
+  formData.append("image", image);
+  }
+
   const res = await fetch("/api/products", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      name: form.name,
-      price: Number(form.price),
-      stock: Number(form.stock),
-      category: form.category,
-    }),
+  method: "POST",
+  body: formData,
   });
 
   const data = await res.json();
@@ -37,7 +71,7 @@ async function handleSubmit(e: React.FormEvent) {
 
   if (!res.ok) {
     if (data.errors) {
-      setErrors(data.errors); // 🔥 Zod errors from backend
+      setErrors(data.errors);
     } else {
       alert("Failed to add product");
     }
@@ -50,7 +84,9 @@ async function handleSubmit(e: React.FormEvent) {
 return (
     <div className="max-w-md">
         <h1 className="text-2xl font-bold mb-4">Add Product</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={step === 2 ? handleSubmit : (e) => e.preventDefault()} className="space-y-4">
+          {step===1&&(
+            <> 
             <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
                 <input
@@ -67,6 +103,34 @@ return (
                 </p>
                 )}
             </div>
+            <div>
+                <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
+                <input
+                    type="text"
+                    id="category"
+                    name="category"
+                    value={form.category}
+                    onChange={handleChange}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                />
+                {errors.category && (
+                <p className="text-red-500 text-sm mt-1">
+                    {errors.category[0]}
+                </p>
+                )}
+            </div>
+            <button
+                type="button"
+                onClick={nextStep}
+                className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
+                disabled={!form.name || !form.category}
+            >
+                Next →
+            </button>
+        </>
+          )}
+          {step===2&&(
+            <>
             <div>
                 <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price</label>
                 <input
@@ -100,24 +164,27 @@ return (
                 )}
             </div>
             <div>
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
-                <input
-                    type="text"
-                    id="category"
-                    name="category"
-                    value={form.category}
-                    onChange={handleChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                />
-                {errors.category && (
-                <p className="text-red-500 text-sm mt-1">
-                    {errors.category[0]}
-                </p>
-                )}
+            <input type="file" accept="image/*" onChange={(e)=>setImage(e.target.files?.[0]||null)} className="mt-1 block w-full"/>
+            {errors.image && (
+            <p className="text-red-500 text-sm mt-1">
+                {errors.image[0]}
+            </p>
+            )}
             </div>
+            <div className="flex justify-between">
+            <button
+            type="button"
+            onClick={prevStep}
+            className="bg-gray-300 px-4 py-2 rounded"
+            >
+            ← Back
+            </button>
             <button type="submit" disabled={loading} className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded disabled:opacity-50">
                 {loading ? "Adding..." : "Add Product"}
             </button>
+            </div>
+            </>
+          )}
         </form>
     </div>
 );

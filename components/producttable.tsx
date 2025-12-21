@@ -6,6 +6,7 @@ type Product = {
   price: number;
   stock: number;
   category: string;
+  image: string;
 };
 
 export default function ProductTable({ products }: { products: Product[] }) {
@@ -44,6 +45,7 @@ export default function ProductTable({ products }: { products: Product[] }) {
             <th className="p-3 border">Price</th>
             <th className="p-3 border">Stock</th>
             <th className="p-3 border">Category</th>
+            <th className="p-3 border">Image</th>
             <th className="p-3 border">Actions</th>
           </tr>
         </thead>
@@ -59,6 +61,13 @@ export default function ProductTable({ products }: { products: Product[] }) {
               <td className="p-3 border">{p.stock}</td>
               <td className="p-3 border">{p.category}</td>
               <td className="p-3 border">
+                <img
+                  src={p.image || "/placeholder.png"}
+                  alt={p.name}
+                  className="w-12 h-12 object-cover rounded"
+                />
+              </td>
+              <td className="p-3 border">
                 <button
                   onClick={() => handleDelete(p._id)}
                   className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
@@ -71,7 +80,7 @@ export default function ProductTable({ products }: { products: Product[] }) {
 
           {products.length === 0 && (
             <tr>
-              <td colSpan={5} className="p-4 text-gray-500 text-center">
+              <td colSpan={6} className="p-4 text-gray-500 text-center">
                 No products found
               </td>
             </tr>

@@ -1,17 +1,26 @@
 import ProductTable from "@/components/producttable";
 import Product from "@/models/product";
 import { connectDB } from "@/lib/db";
-import mongoose from "mongoose";
 import Link from "next/link";
+import ProductCharts from "@/components/ProductCharts";
+export const dynamic = "force-dynamic";
 export default async function ProductsPage() {
   await connectDB();
-  const productsFromDB = await Product.find().lean();
+  const productsFromDB = await Product.find().lean<{ 
+  _id: any;
+  name: string;
+  price: number;
+  stock: number;
+  category: string;
+  image: string;
+}>();
   const products = productsFromDB.map((p) => ({
     _id: p._id.toString(),
     name: p.name,
     price: p.price,
     stock: p.stock,
     category: p.category,
+    image: p.image,
   }));
   return (
     <div>
@@ -25,6 +34,7 @@ export default async function ProductsPage() {
       >
         + Add Product
       </Link>
+      <ProductCharts products={products} />
       <ProductTable products={products} />
     </div>
   );
