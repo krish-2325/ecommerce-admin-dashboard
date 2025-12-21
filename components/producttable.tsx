@@ -1,5 +1,5 @@
 "use client";
-
+import { useRouter } from "next/navigation";  
 type Product = {
   _id: string;
   name: string;
@@ -9,6 +9,7 @@ type Product = {
 };
 
 export default function ProductTable({ products }: { products: Product[] }) {
+   const router = useRouter();
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this product?")) {
       return;
@@ -27,7 +28,7 @@ export default function ProductTable({ products }: { products: Product[] }) {
       }
 
       // Simple refresh (safe for now)
-      window.location.reload();
+      router.refresh();
     } catch (error) {
       alert("Network error. Please try again.");
       console.error(error);

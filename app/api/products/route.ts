@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Product from "@/models/product";
-
+import { productSchema } from "@/lib/validators/product";
 export async function GET() {
     try {
         console.log("=== GET Products API Called ===");
@@ -10,12 +10,12 @@ export async function GET() {
         const products = await Product.find({});
         console.log(`Found ${products.length} products`);
         
-        if (products.length > 0) {
-            console.log("First product raw:", products[0]);
-            console.log("First product _id:", products[0]._id);
-            console.log("First product _id type:", typeof products[0]._id);
-            console.log("First product _id toString:", products[0]._id.toString());
-        }
+        // if (products.length > 0) {
+        //     console.log("First product raw:", products[0]);
+        //     console.log("First product _id:", products[0]._id);
+        //     console.log("First product _id type:", typeof products[0]._id);
+        //     console.log("First product _id toString:", products[0]._id.toString());
+        // }
         
         // Convert to plain objects with string IDs
         const serializedProducts = products.map(product => {
@@ -39,8 +39,25 @@ export async function GET() {
 }
 export async function POST(req: Request)
 {
-    await connectDB();
-    const body = await req.json();
-    const product = await Product.create(body);
-    return NextResponse.json(product,{status:201});
+    try{
+        const body=await req.json();
+        const parsed =productSchema.safeParse(body);
+        if(!parsed.success)
+        {
+            return NextResponse.json(
+                { errors: parsed.error.flatten().fieldErrors },
+                { status: 400 }
+            );
+        }
+        await connectDB();
+        const product = await Product.create(parsed.data);
+        return NextResponse.json(product,{status:201});
+    }
+    catch(error)
+    {
+        return NextResponse.json(
+            {error:"Failed to create product"},
+            {status:500}
+        );
+    }
 }
