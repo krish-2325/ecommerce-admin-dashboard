@@ -1,10 +1,18 @@
 import ProductTable from "@/components/producttable";
-import { Product } from "@/models/product";
+import Product from "@/models/product";
 import { connectDB } from "@/lib/db";
+import mongoose from "mongoose";
 import Link from "next/link";
 export default async function ProductsPage() {
   await connectDB();
-  const products = await Product.find().lean();
+  const productsFromDB = await Product.find().lean();
+  const products = productsFromDB.map((p) => ({
+    _id: p._id.toString(),
+    name: p.name,
+    price: p.price,
+    stock: p.stock,
+    category: p.category,
+  }));
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4">Products</h1>

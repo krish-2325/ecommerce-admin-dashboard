@@ -1,13 +1,40 @@
-type product={
-    id:string;
-    name:string;
-    price:number;
-    stock:number;
-    category:string;
+"use client";
+
+type Product = {
+  _id: string;
+  name: string;
+  price: number;
+  stock: number;
+  category: string;
 };
-export default function ProductTable({products}:{products:product[]}) 
-{
-    return (
+
+export default function ProductTable({ products }: { products: Product[] }) {
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this product?")) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/products/${id}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Failed to delete product");
+        return;
+      }
+
+      // Simple refresh (safe for now)
+      window.location.reload();
+    } catch (error) {
+      alert("Network error. Please try again.");
+      console.error(error);
+    }
+  };
+
+  return (
     <div className="overflow-x-auto bg-white rounded shadow">
       <table className="min-w-full border">
         <thead className="bg-gray-100">
@@ -16,19 +43,40 @@ export default function ProductTable({products}:{products:product[]})
             <th className="p-3 border">Price</th>
             <th className="p-3 border">Stock</th>
             <th className="p-3 border">Category</th>
+            <th className="p-3 border">Actions</th>
           </tr>
         </thead>
+
         <tbody>
           {products.map((p) => (
-            <tr key={p._id} className="text-center">
+            <tr
+              key={p._id}
+              className="text-center hover:bg-gray-50 transition"
+            >
               <td className="p-3 border">{p.name}</td>
               <td className="p-3 border">₹{p.price}</td>
               <td className="p-3 border">{p.stock}</td>
               <td className="p-3 border">{p.category}</td>
+              <td className="p-3 border">
+                <button
+                  onClick={() => handleDelete(p._id)}
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                >
+                  Delete
+                </button>
+              </td>
             </tr>
           ))}
+
+          {products.length === 0 && (
+            <tr>
+              <td colSpan={5} className="p-4 text-gray-500 text-center">
+                No products found
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>
-    );
+  );
 }
