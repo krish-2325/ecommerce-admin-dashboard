@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+
 import Sidebar from "@/components/Sidebar";
-import Navbar from "@/components/Navbar";
+import MainLayout from "@/components/MainLayout";
+import { UIProvider } from "@/components/ui/UIContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,8 +17,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Admin Dashboard",
-  description: "E-commerce product management dashboard",
+  title: {
+    default: "Admin Dashboard",
+    template: "%s | E-commerce Admin",
+  },
+  description:
+    "Professional server-rendered e-commerce admin dashboard",
 };
 
 export default function RootLayout({
@@ -27,14 +33,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-100 text-gray-900`}
       >
-        <Sidebar />
+        <UIProvider>
+          <div className="flex min-h-screen">
+            {/* SIDEBAR */}
+            <Sidebar />
 
-        <div className="ml-64">
-          <Navbar />
-          <main className="p-6">{children}</main>
-        </div>
+            {/* MAIN AREA */}
+            <MainLayout>
+              {children}
+            </MainLayout>
+          </div>
+        </UIProvider>
       </body>
     </html>
   );
