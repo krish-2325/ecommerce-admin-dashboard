@@ -278,6 +278,7 @@ export default function ProductTable({
           <tbody className="divide-y">
             {paginated.map((p) => (
               <tr key={p._id} className="hover:bg-gray-50">
+                {visibleCols.product && (
                 <td className="p-4 flex items-center gap-3">
                   <div className="h-12 w-12 relative rounded border overflow-hidden">
                     <Image
@@ -294,17 +295,20 @@ export default function ProductTable({
                     </p>
                   </div>
                 </td>
-
+                )}
+                {visibleCols.category && (
                 <td className="p-4">
                   <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs">
                     {p.category}
                   </span>
                 </td>
-
+                )}
+                {visibleCols.price && (
                 <td className="p-4 font-medium">
                   ₹{p.price.toLocaleString()}
                 </td>
-
+                )}
+                {visibleCols.stock && ( 
                 <td className="p-4">
                   <span
                     className={`px-3 py-1 rounded-full text-xs ${
@@ -318,7 +322,8 @@ export default function ProductTable({
                     {p.stock > 0 ? `${p.stock} in stock` : "Out of stock"}
                   </span>
                 </td>
-
+                )}
+                {visibleCols.actions && (
                 <td className="p-4 text-right space-x-2">
                   <button
                     onClick={() =>
@@ -336,6 +341,7 @@ export default function ProductTable({
                     {deletingId === p._id ? "Deleting…" : "Delete"}
                   </button>
                 </td>
+                )}
               </tr>
             ))}
           </tbody>
