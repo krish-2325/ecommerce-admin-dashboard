@@ -2,10 +2,10 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
-  const isAuth = req.cookies.get("admin-auth");
+  const isAuth = req.cookies.get("admin-auth")?.value;
   const { pathname } = req.nextUrl;
 
-  // Allow login page always
+  // Allow login page
   if (pathname.startsWith("/login")) {
     if (isAuth) {
       return NextResponse.redirect(new URL("/", req.url));
@@ -13,7 +13,7 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Protect all other routes
+  // Protect all non-public routes
   if (!isAuth) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
@@ -22,5 +22,8 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next|favicon.ico|api).*)"],
+  matcher: [
+    "/", 
+    "/products/:path*",
+  ],
 };
