@@ -142,6 +142,11 @@ Open http://localhost:3000
 
 ---
 
+### Deployed On Vercel
+- https://ecommerce-admin-dashboard-474z.vercel.app/
+  
+---
+
 ## 🙌 Author
 
 **Krish Goyal**  
