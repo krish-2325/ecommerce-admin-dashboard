@@ -147,6 +147,9 @@ Open http://localhost:3000
   
 ---
 
+### Admin Credentials
+- Email admin@dashboard.com
+- Password admin@1234
 ## 🙌 Author
 
 **Krish Goyal**  
